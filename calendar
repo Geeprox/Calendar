@@ -1,0 +1,148 @@
+//Calendar Demo
+//It can print any year`s any month`s date and the adjacent month`s date
+//Input: year month
+//Output: month-1/month/month+1 `s date in a 6x7 table
+//2015-1-1-Thur
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+enum weekday
+{
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+    Thursday = 4,
+    Friday = 5,
+    Saturday = 6,
+    Sunday = 0
+};
+
+int get_Month_Days(int year, int month)
+{
+    switch(month)
+    {
+    case 1:
+    case 3:
+    case 5:
+    case 7:
+    case 8:
+    case 10:
+    case 12:
+        return 31;
+        break;
+    case 4:
+    case 6:
+    case 9:
+    case 11:
+        return 30;
+        break;
+    case 2:
+        return ((year%4==0&&year%100!=0)||year%400==0) ? 29 : 28;
+        break;
+    }
+}
+
+int diff_Days(int year_Base, int month_Base, int year, int month)
+{
+    int range_Year_H = year > year_Base ? year : year_Base;
+    int range_Month_H = month > month_Base ? month : month_Base;
+    int range_Year_L = year + year_Base - range_Year_H;
+    int range_Month_L = month + month_Base - range_Month_H;
+
+    int days_Cnt = 0;
+
+    //year >= 2015
+    if(year_Base == range_Year_L)
+    {
+        for(int i = range_Year_L; i < range_Year_H; ++i)
+        {
+            for(int j = 1; j <= 12; ++j)
+            {
+                days_Cnt += get_Month_Days(i, j);
+            }
+        }
+
+        for(int i = 1; i < range_Month_H; ++i)
+        {
+            days_Cnt += get_Month_Days(range_Year_H, i);
+        }
+
+        return days_Cnt;
+    }
+    else
+    {
+        for(int i = month; i <= 12; ++i)
+        {
+            days_Cnt += get_Month_Days(year, i);
+        }
+
+        for(int i = year + 1; i < year_Base; ++i)
+        {
+            for(int j = 1; j <= 12; ++j)
+            {
+                days_Cnt += get_Month_Days(i, j);
+            }
+        }
+
+        return -days_Cnt;
+    }
+}
+
+void getTable(int year, int month)
+{
+    int result[42];
+    for(int i = 0; i < 42; ++i)
+        result[i] = 0;
+
+    int diffDays = diff_Days(2015, 1, year, month);
+
+    int week = diffDays>=0 ? ((Thursday + diffDays) % 7) : (((Thursday + diffDays) % 7 + 7) % 7);
+
+    int date = 1;
+    for(int i = week; i < week + get_Month_Days(year, month); ++i)
+    {
+        result[i] = date;
+        ++date;
+    }
+
+    int cnt = 0;
+    cout << setw(5);
+    cout << "Sun" << setw(5) << "Mon" << setw(5) << "Tue" << setw(5) << "Wed" << setw(5) << "Thu" << setw(5) << "Fri" << setw(5) << "Sat" << setw(5) << endl;
+    for(int i = 0; i < 42; ++i)
+    {
+        ++cnt;
+        if(result[i] == 0)
+            cout << " " << setw(5);
+        else
+            cout << result[i] << setw(5);
+
+        if(cnt%7 == 0)
+            cout << endl;
+    }
+
+    cout << endl;
+}
+
+int main()
+{
+    cout << "----------------------------" << endl;
+    cout << "-  Calendar v1.0 By:Geeprox " << endl;
+    cout << "-  Input: Year Month        " << endl;
+    cout << "----------------------------" << endl;
+
+    int month, year;
+
+    while(cin >> year >> month)
+    {
+        if(month < 1 || month > 12)
+        {
+            cout << "Error: 1 <= month <= 12" << endl << endl;
+            continue;
+        }
+
+        cout << year << " - " << month << ":" << endl;
+
+        getTable(year, month);
+    }
+}
